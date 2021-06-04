@@ -1,0 +1,10 @@
+﻿<Project>
+  <PropertyGroup>
+    <HelmRepositoryDirectory Condition="'$(HelmRepositoryDirectory)' == ''">bin\$(Configuration)\charts</HelmRepositoryDirectory>
+    <HelmSkipDockerImagePush Condition="'$(HelmSkipDockerImagePush)' == ''">false</HelmSkipDockerImagePush>
+    <HelmSkipPackage Condition="'$(HelmSkipPackage)' == ''">false</HelmSkipPackage>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectCapability Include="HelmTargets" />
+  </ItemGroup>
+</Project>

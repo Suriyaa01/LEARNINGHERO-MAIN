@@ -1,0 +1,17 @@
+00:00:00.321709 VirtualBox GUI VM Selector Window 6.1.22 r144080 win.amd64 (Apr 28 2021 17:23:11) release log
+00:00:00.321711 Log opened 2021-05-12T19:15:30.797816800Z
+00:00:00.321711 Build Type: release
+00:00:00.321713 OS Product: Windows 10
+00:00:00.321714 OS Release: 10.0.19041
+00:00:00.321714 OS Service Pack: 
+00:00:00.331998 DMI Product Name: Nitro AN515-44
+00:00:00.335855 DMI Product Version: V1.02
+00:00:00.335869 Firmware type: UEFI
+00:00:00.336107 Secure Boot: VERR_PRIVILEGE_NOT_HELD
+00:00:00.336122 Host RAM: 7549MB (7.3GB) total, 1574MB available
+00:00:00.336125 Executable: C:\Program Files\Oracle\VirtualBox\VirtualBox.exe
+00:00:00.336126 Process ID: 14448
+00:00:00.336126 Package type: WINDOWS_64BITS_GENERIC
+00:00:00.336307 Qt version: 5.6.2
+00:00:00.342716 GUI: UIMediumEnumerator: Medium-enumeration started...
+00:00:00.342748 GUI: UIMediumEnumerator: Medium-enumeration finished!

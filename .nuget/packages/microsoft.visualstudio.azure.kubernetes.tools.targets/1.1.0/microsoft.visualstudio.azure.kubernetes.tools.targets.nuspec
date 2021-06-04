@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Microsoft.VisualStudio.Azure.Kubernetes.Tools.Targets</id>
+    <version>1.1.0</version>
+    <title>Microsoft Visual Studio Tools for Kubernetes Targets</title>
+    <authors>Microsoft</authors>
+    <owners>Microsoft,MicrosoftAzureTools</owners>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <license type="file">EULA.md</license>
+    <licenseUrl>https://aka.ms/deprecateLicenseUrl</licenseUrl>
+    <projectUrl>https://aka.ms/vskubernetestools</projectUrl>
+    <iconUrl>https://aka.ms/vskubernetestoolstargets-icon</iconUrl>
+    <description>Targets files to enable the Visual Studio Tools for Kubernetes.</description>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <tags>container;containers;Docker;microservices;Kubernetes;k8s;orchestrator;orchestration;Helm;Azure;AKS</tags>
+    <dependencies>
+      <group>
+        <dependency id="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" version="1.1.1" exclude="Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>

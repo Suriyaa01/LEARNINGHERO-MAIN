@@ -1,0 +1,9 @@
+﻿<Project>
+  <Import Project="Helm.props" />
+  <PropertyGroup>
+    <DevSpacesSupport>true</DevSpacesSupport>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectCapability Include="DevSpaces" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,128 @@
+﻿<Project>
+  <PropertyGroup>
+    <HelmLintDependsOn>HelmCreateChartItems;HelmLintCore</HelmLintDependsOn>
+    <HelmBuildDependsOn>HelmLint;HelmBuildRequiredCharts;HelmDependencyUpdate;HelmPackage</HelmBuildDependsOn>
+    <HelmPushRequiredDockerImagesDependsOn>HelmPushRequiredDockerImagesOfChart;HelmPushRequiredDockerImagesOfRequiredCharts</HelmPushRequiredDockerImagesDependsOn>
+    <HelmInstallDependsOn>HelmBuild;HelmPushRequiredDockerImages;HelmInstallCore</HelmInstallDependsOn>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <HelmTasksAssemblyFile Condition="'$(HelmTasksAssemblyFile)' == ''">$(MSBuildThisFileDirectory)..\tools\Microsoft.VisualStudio.Kubernetes.Tasks.dll</HelmTasksAssemblyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectCapability Include="HelmTargets" />
+  </ItemGroup>
+
+  <UsingTask
+    TaskName="HelmGetRequiredChartsFromMetadata"
+    AssemblyFile="$(HelmTasksAssemblyFile)" />
+
+  <UsingTask
+    TaskName="HelmGetRequiredDockerfilesFromMetadata"
+    AssemblyFile="$(HelmTasksAssemblyFile)" />
+
+  <!--
+    HelmCreateChartItems
+
+    Ensures that ambient/selected HelmChart items exist.
+
+    Inputs:
+
+      - @(HelmChart): Any ambient Helm charts that might exist within the project.
+      - HelmChartDir: A specific Helm chart directory to be processed.
+
+    Outputs:
+
+      - @(_HelmChart): The Helm charts to be processed.
+  -->
+  <Target Name="HelmCreateChartItems">
+    <PropertyGroup>
+      <!-- NOTE: Some Helm commands have issues with directories with trailing backslash separators. -->
+      <_HelmChartDir Condition="'$(HelmChartDir)' != ''">$(HelmChartDir.TrimEnd('\'))</_HelmChartDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <!-- Transform all ambient HelmChart items if none specifically selected. -->
+      <_SelectedHelmChart Include="@(HelmChart)" Condition="'$(_HelmChartDir)' == ''" />
+
+      <!-- If a Helm chart was selected, try to match it to an ambient HelmChart item. -->
+      <_SelectedHelmChart Include="@(HelmChart)" Condition="'$(_HelmChartDir)' != '' And '%(HelmChart.FullPath)' == '$([System.IO.Path]::GetFullPath($(_HelmChartDir)))'" />
+
+      <!-- If no existing HelmChart item was found for the selection, generate a new HelmChart item for the selection. -->
+      <_SelectedHelmChart Include="$(_HelmChartDir)" Condition="'$(_HelmChartDir)' != '' And '@(_SelectedHelmChart)' == ''" />
+
+      <!-- If no existing HelmChart item was found or selected, generate new HelmChart items based on each folder found with a Chart.yaml. -->
+      <!-- TODO: Are there folders we should specifically include (e.g. charts) or exclude (e.g. bin/obj)? -->
+      <_HelmChartManifests Include="**\Chart.yaml" Condition="'$(_HelmChartDir)' == '' And '@(_SelectedHelmChart)' == ''" />
+      <_SelectedHelmChart Include="@(_HelmChartManifests->'%(RelativeDir).')" Condition="'@(_HelmChartManifests)' != ''" />
+
+      <_HelmChart Include="@(_SelectedHelmChart)" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="HelmBuild" DependsOnTargets="$(HelmBuildDependsOn)" />
+
+  <Target Name="HelmBuildRequiredCharts" Inputs="@(_HelmChart->HasMetadata('RequiredCharts'))" Outputs="%(Identity).output">
+    <Message Text="Building required charts %(_SplitProjects.Identity)..." />
+    <HelmGetRequiredChartsFromMetadata RequiredChartsMetadata="%(_HelmChart.RequiredCharts)">
+      <Output ItemName="_RequiredCharts" TaskParameter="RequiredCharts" />
+    </HelmGetRequiredChartsFromMetadata>
+    <Message Text="Building required chart %(_RequiredCharts.Identity)..." />
+    <MSBuild Projects="@(_RequiredCharts)" Targets="HelmBuild" />
+  </Target>
+
+  <Target Name="HelmDependencyUpdate" Inputs="@(_HelmChart)" Outputs="%(Identity).output">
+    <Message Text="Updating Helm chart dependencies..." />
+    <Exec Command='helm dependency update "%(_HelmChart.Identity)"' />
+  </Target>
+
+  <Target Name="HelmLint" DependsOnTargets="$(HelmLintDependsOn)" />
+
+  <Target Name="HelmLintCore" Inputs="@(_HelmChart)" Outputs="%(Identity).output">
+    <Message Text="Linting Helm chart '%(_HelmChart.Identity)'..." />
+    <Exec Command='helm lint "%(_HelmChart.Identity)"' />
+  </Target>
+
+  <Target Name="HelmInstall" DependsOnTargets="$(HelmInstallDependsOn)" />
+
+  <Target Name="HelmPushRequiredDockerImages" DependsOnTargets="$(HelmPushRequiredDockerImagesDependsOn)" />
+
+  <Target Name="HelmPushRequiredDockerImagesOfChart" Inputs="@(_HelmChart->HasMetadata('RequiredDockerfiles'))" Outputs="%(Identity).output" Condition="'$(HelmSkipDockerImagePush)' != 'true'">
+    <Message Text="Pushing required Docker images..." />
+    <HelmGetRequiredDockerfilesFromMetadata RequiredDockerfilesMetadata="%(_HelmChart.RequiredDockerfiles)">
+      <Output ItemName="_RequiredDockerfiles" TaskParameter="RequiredDockerfiles" />
+    </HelmGetRequiredDockerfilesFromMetadata>
+    <Message Text="Pushing Docker image %(_RequiredDockerfiles.Identity)..." />
+    <MSBuild Projects="@(_RequiredDockerfiles)" Targets="ContainerPublish" />
+  </Target>
+
+  <Target Name="HelmPushRequiredDockerImagesOfRequiredCharts" Inputs="@(_HelmChart->HasMetadata('RequiredCharts'))" Outputs="%(Identity).output" Condition="'$(HelmSkipDockerImagePush)' != 'true'">
+    <Message Text="Pushing required Docker images of required charts..." />
+    <HelmGetRequiredChartsFromMetadata RequiredChartsMetadata="%(_HelmChart.RequiredCharts)">
+      <Output ItemName="_RequiredCharts" TaskParameter="RequiredCharts" />
+    </HelmGetRequiredChartsFromMetadata>
+    <Message Text="Pushing required Docker images for required chart %(_RequiredCharts.Identity)..." />
+    <MSBuild Projects="@(_RequiredCharts)" Targets="HelmPushRequiredDockerImages" />
+  </Target>
+
+  <Target Name="HelmInstallCore" Inputs="@(_HelmChart)" Outputs="%(Identity).output">
+    <PropertyGroup>
+      <_HelmKubernetesContextArgument Condition="'$(HelmKubernetesContext)' != ''">--kube-context "$(HelmKubernetesContext)"</_HelmKubernetesContextArgument>
+      <_HelmValuesFileArgument Condition="'$(HelmValuesFile)' != ''">-f "$(HelmValuesFile)"</_HelmValuesFileArgument>
+    </PropertyGroup>
+    <Message Text="Installing Helm chart '%(_HelmChart.Identity)'..." />
+    <Exec Command='helm install "%(_HelmChart.Identity)" $(_HelmKubernetesContextArgument) $(_HelmValuesFileArgument)' />
+  </Target>
+
+  <Target Name="HelmPackage" Inputs="@(_HelmChart)" Outputs="%(Identity).output" Condition="'$(HelmSkipPackage)' != 'true'">
+    <MakeDir Directories="$(HelmRepositoryDirectory)" />
+    <Message Text="Packaging Helm chart '%(_HelmChart.Identity)'..." />
+    <Exec Command='helm package --save=false -d "$(HelmRepositoryDirectory)" "%(_HelmChart.Identity)"' />
+  </Target>
+
+  <Target Name="HelmServe">
+    <Message Text="Serving Helm charts from '$(HelmRepositoryDirectory)'..." />
+    <Message Text="Press Ctrl+C to stop..." />
+    <Exec Command='helm serve --repo-path "$(HelmRepositoryDirectory)"' />
+  </Target>
+</Project>
