@@ -1,0 +1,71 @@
+
+@media only screen and (max-width: 2400px){
+  .responsiveContentMargin{
+      /* background-color: #e2e8f0; */
+      /* background-color: green; */
+      margin-left: 200px;
+      margin-top: 100px;
+      /* min-height: 00px; */
+      /* height: calc(100vh - 65px); */
+  }
+}
+
+@media only screen and (max-width: 990px){
+  .responsiveContentMargin{
+      /* background-color: #e2e8f0; */
+      /* background-color: blue;         */
+      margin-left: 0px;
+      margin-top: 100px;
+      /* min-height: 1600px; */
+      /* height: calc(100vh - 65px); */
+  }
+}
+
+.my_h4 {
+    color: red;
+    /* background-color: pink; */
+  }
+
+.navBarTopLinks {
+    /* font: 15px Helvetica, Arial, sans-serif;
+    background: #eee;
+    padding: 100px;
+    text-align: center;
+    transition: 100ms ease-in background; */
+    /* font-weight: bold; */
+    font-size: 16px;
+    background-color: #3F2F0B;
+    color: white;
+  }
+  .navBarTopLinks:hover {
+    background-color: white;
+    color: #3F2F0B;
+  }
+
+  .navBarSideLinks {
+    /* font: 15px Helvetica, Arial, sans-serif;
+    background: #eee;
+    padding: 100px;
+    text-align: center;
+    transition: 100ms ease-in background; */
+    /* font-weight: bold; */
+    font-size: 16px;
+    background-color: #3F2F0B;
+    color: white;
+  }
+  .navBarSideLinks:hover {
+    background-color: red;
+    color: blue;
+  }
+
+
+
+  /* @font-face {
+    font-family: 'FontAwesome11';
+    src: url('http://fortawesome.github.com/Font-Awesome/assets/font/fontawesome-webfont.eot?v=3.0.1');
+    src: url('http://fortawesome.github.com/Font-Awesome/assets/font/fontawesome-webfont.eot?#iefix&v=3.0.1') format('embedded-opentype'),
+      url('http://fortawesome.github.com/Font-Awesome/assets/font/fontawesome-webfont.woff?v=3.0.1') format('woff'),
+      url('http://fortawesome.github.com/Font-Awesome/assets/font/fontawesome-webfont.ttf?v=3.0.1') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  } */
